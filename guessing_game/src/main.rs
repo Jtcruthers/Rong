@@ -1,13 +1,20 @@
 use std::io;
+use std::io::Write;
 use std::cmp::Ordering;
 use rand::Rng;
+
+
+fn flush_stdout() {
+    io::stdout().flush().expect("Failed to flush stdout");
+}
 
 fn get_random_number() -> u8 {
     rand::thread_rng().gen_range(1,11)
 }
 
 fn get_guess() -> u8 {
-    println!("Please input your guess: ");
+    print!("Please input your guess: ");
+    flush_stdout();
 
     let mut guess = String::new();
     io::stdin().read_line(&mut guess).expect("Failed to read line");
@@ -30,17 +37,22 @@ fn guessing_game() {
 }
 
 fn get_is_playing_another() -> bool {
-    println!("Would you like to play again? (Y/n)");
+    print!("Would you like to play again? (Y/n): ");
+    flush_stdout();
+
     let mut response = String::new();
     io::stdin().read_line(&mut response).expect("Failed to read line");
     response.to_lowercase().starts_with("y")
 }
 
+
 fn main() {
     let mut is_playing_another = true;
+    println!("Number guessing game. Guess a number between 1 and 10. Let me think of a number");
     while is_playing_another {
         guessing_game();
         is_playing_another = get_is_playing_another();
     }
+
     println!("\nThanks for playing!");
 }
