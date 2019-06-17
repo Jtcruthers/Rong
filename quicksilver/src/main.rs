@@ -5,15 +5,16 @@ use rand::Rng;
 
 use quicksilver::{
     Result,
-    geom::{Rectangle, Transform, Vector},
-    graphics::{Background, Color},
+    geom::{Shape, Transform, Vector},
+    graphics::{Background::Img, Color, Image},
     input::Key,
-    lifecycle::{Settings, State, Window, run},
+    lifecycle::{Asset, Settings, State, Window, run},
 };
 
 struct Screen {
     position: Vector,
-    velocity: Vector
+    velocity: Vector,
+    background: Asset<Image>
 }
 
 impl Screen {
@@ -25,23 +26,14 @@ impl Screen {
         self.position.y = y;
     }
 
-    fn slide(&mut self) {
-        if self.position.x > 1600.0 || self.position.x < 0.0 {
-            self.velocity.x *= -1.0;
-        }
-        if self.position.y > 1200.0 || self.position.y < 0.0 {
-            self.velocity.y *= -1.0;
-        }
-        self.position.x += self.velocity.x;
-        self.position.y += self.velocity.y;
-    }
 }
 
 impl State for Screen {
     fn new() -> Result<Screen> {
         Ok(Screen {
             position: Vector::new(50, 50),
-            velocity: Vector::new(0, 0)
+            velocity: Vector::new(0, 0),
+            background: Asset::new(Image::load("image.png"))
         })
     }
 
@@ -71,13 +63,16 @@ impl State for Screen {
         window.clear(Color::WHITE)?;
 
         println!("position {}\nvelocity {}", self.position, self.velocity);
-        window.draw_ex(
-            &Rectangle::new(self.position, (100, 100)),
-            Background::Col(Color::BLUE),
-            Transform::rotate(45),
-            0
-        );
-        Ok(())
+        let position = self.position.clone(); //Had to clone it because it complained about borrowing. Look into that
+        self.background.execute(|image| {
+            window.draw_ex(
+                &image.area().with_center(position),
+                Img(&image),
+                Transform::scale((0.2, 0.2)),
+                0
+            );
+            Ok(())
+        })
     }
 }
 
