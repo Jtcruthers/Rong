@@ -5,16 +5,20 @@ use rand::Rng;
 
 use quicksilver::{
     Result,
-    geom::{Shape, Transform, Vector},
-    graphics::{Background::Img, Color, Image},
+    geom::{Rectangle, Shape, Transform, Vector},
+    graphics::{Background, Color, Image},
     input::Key,
     lifecycle::{Asset, Settings, State, Window, run},
 };
 
+mod paddle;
+use paddle::Paddle;
+
 struct Screen {
     position: Vector,
     velocity: Vector,
-    background: Asset<Image>
+    background: Asset<Image>,
+    paddles: [Paddle; 2]
 }
 
 impl Screen {
@@ -33,7 +37,11 @@ impl State for Screen {
         Ok(Screen {
             position: Vector::new(50, 50),
             velocity: Vector::new(0, 0),
-            background: Asset::new(Image::load("image.png"))
+            background: Asset::new(Image::load("image.png")),
+            paddles: [
+                Paddle { position: Vector::new(50, 50), ..Default::default() },
+                Paddle { position: Vector::new(1500, 50), ..Default::default() }
+            ]
         })
     }
 
@@ -60,19 +68,26 @@ impl State for Screen {
     }
 
     fn draw(&mut self, window: &mut Window) -> Result<()> {
-        window.clear(Color::WHITE)?;
+        window.clear(Color::BLACK)?;
 
         println!("position {}\nvelocity {}", self.position, self.velocity);
         let position = self.position.clone(); //Had to clone it because it complained about borrowing. Look into that
         self.background.execute(|image| {
             window.draw_ex(
                 &image.area().with_center(position),
-                Img(&image),
-                Transform::scale((0.2, 0.2)),
+                Background::Img(&image),
+                Transform::scale((0.1, 0.1)),
                 0
             );
             Ok(())
-        })
+        });
+        for paddle in self.paddles.iter() {
+            window.draw(
+                &Rectangle::new(paddle.position, paddle.width),
+                Background::Col(paddle.background)
+            );
+        }
+        Ok(())
     }
 }
 
