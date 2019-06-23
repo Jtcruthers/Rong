@@ -12,19 +12,41 @@ use quicksilver::{
     lifecycle::{Asset, Settings, State, Window, run},
 };
 
+use std::rc::Rc;
+use std::cell::RefCell;
 
 use ball::Ball;
 use paddle::Paddle;
 use input_handler::InputHandler;
 
+
+pub struct Scoring {
+    score1: i32,
+    score2: i32,
+    score1_texture : Option<Image>,
+    score2_texture : Option<Image>,
+}
+
+impl Scoring {
+    pub fn new() -> Scoring {
+        Scoring {
+            score1: 0,
+            score2: 0,
+            score1_texture: None,
+            score2_texture: None,
+        }
+    }
+}
+
 struct Screen {
     background: Asset<Image>,
     ball: Ball,
+    font: Rc<RefCell<Asset<Font>>>,
+    font_style: FontStyle,
     input_handler: InputHandler,
     player_1: Paddle,
     player_2: Paddle,
-    score: (u64, u64),
-    score_text: Asset<Image>
+    score: Scoring
 }
 
 impl State for Screen {
@@ -32,6 +54,13 @@ impl State for Screen {
         Ok(Screen {
             background: Asset::new(Image::load("background.png")),
             ball: Ball::new(),
+            font: Rc::new(RefCell::new(Asset::new(Font::load("arcade.ttf")))),
+            font_style: FontStyle::new(64.0, Color {
+                r: 0.0f32,
+                g: 0.5f32,
+                b: 0.4f32,
+                a: 1.0f32,
+            }),
             input_handler: InputHandler::new(),
             player_1: Paddle {
                 position: Vector::new(50, 50),
@@ -43,12 +72,7 @@ impl State for Screen {
                 background: Color::from_rgba(234, 80, 183, 100.0),
                 ..Default::default()
             },
-            score: (0, 0),
-            score_text: Asset::new(Font::load("arcade.ttf")
-                .and_then(|font| {
-                    let style = FontStyle::new(64.0, Color::BLACK);
-                    result(font.render("SAMPLE", &style))
-                }))
+            score: Scoring::new()
         })
     }
 
@@ -57,10 +81,11 @@ impl State for Screen {
         self.ball.update(&self.player_1, &self.player_2);
 
         if let Some(player_who_scored) = self.ball.did_score(&self.player_1, &self.player_2) {
-            if player_who_scored == 1 { self.score.0 += 1; }
-            if player_who_scored == 2 { self.score.1 += 1; }
+            if player_who_scored == 1 { self.score.score1 += 1; }
+            if player_who_scored == 2 { self.score.score2 += 1; }
             self.ball.reset();
         }
+        println!("SCORE {} to {}", self.score.score1, self.score.score2);
         Ok(())
     }
 
@@ -81,14 +106,37 @@ impl State for Screen {
                 &image.area().with_center(position),
                 Background::Img(&image),
                 Transform::scale((0.05, 0.05)),
-                1
+                2
             );
             Ok(())
         }).expect("Could not load ball background.");
-        self.score_text.execute(|image| {
-            window.draw(&image.area().with_center((400, 100)), Background::Img(&image));
+        let cloned_font = self.font.clone();
+        cloned_font.borrow_mut().execute(|font| {
+            let score1_texture = font.render(&format!("{:02}", self.score.score1), &self.font_style).unwrap();
+            self.score.score1_texture = Some(score1_texture);
             Ok(())
-        });
+        }).expect("Could not render player 1 score");
+        cloned_font.borrow_mut().execute(|font| {
+            let score2_texture = font.render(&format!("{:02}", self.score.score2), &self.font_style).unwrap();
+            self.score.score2_texture = Some(score2_texture);
+            Ok(())
+        }).expect("Could not render player 2 score");
+        if let Some(ref image) = self.score.score1_texture {
+            window.draw_ex(
+                &image.area().with_center((400, 100)),
+                Background::Img(&image),
+                Transform::scale((3.0, 3.0)),
+                1
+            );
+        }
+        if let Some(ref image) = self.score.score2_texture {
+            window.draw_ex(
+                &image.area().with_center((1450, 100)),
+                Background::Img(&image),
+                Transform::scale((3.0, 3.0)),
+                1
+            );
+        }
         window.draw_ex(
             &Rectangle::new(self.player_1.position, self.player_1.width),
             Background::Col(self.player_1.background),

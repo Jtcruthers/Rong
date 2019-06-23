@@ -49,10 +49,10 @@ impl Ball {
         if self.position.y <= 0.0 || self.position.y >= 1080.0 {
             self.reverse_y();
         }
-        if self.position.y >= player_1.position.y - 150.0 && self.position.y <= (player_1.position.y + player_1.width.y + 150.0) && self.position.x <= 90.0 {
+        if self.position.y >= player_1.position.y - 75.0 && self.position.y <= (player_1.position.y + player_1.width.y + 75.0) && self.position.x <= 90.0 {
             self.reverse_x();
         }
-        if self.position.y >= player_2.position.y - 150.0 && self.position.y <= (player_2.position.y + player_2.width.y + 150.0) && self.position.x >= 1820.0 {
+        if self.position.y >= player_2.position.y - 75.0 && self.position.y <= (player_2.position.y + player_2.width.y + 75.0) && self.position.x >= 1820.0 {
             self.reverse_x();
         }
 
