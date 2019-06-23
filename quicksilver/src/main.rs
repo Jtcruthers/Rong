@@ -1,6 +1,9 @@
 extern crate quicksilver;
 extern crate rand;
 
+mod input_handler;
+mod paddle;
+
 use rand::Rng;
 
 use quicksilver::{
@@ -11,14 +14,17 @@ use quicksilver::{
     lifecycle::{Asset, Settings, State, Window, run},
 };
 
-mod paddle;
+
 use paddle::Paddle;
+use input_handler::InputHandler;
 
 struct Screen {
     position: Vector,
     velocity: Vector,
     background: Asset<Image>,
-    paddles: [Paddle; 2]
+    player_1: Paddle,
+    player_2: Paddle,
+    input_handler: InputHandler
 }
 
 impl Screen {
@@ -38,10 +44,9 @@ impl State for Screen {
             position: Vector::new(50, 50),
             velocity: Vector::new(0, 0),
             background: Asset::new(Image::load("image.png")),
-            paddles: [
-                Paddle { position: Vector::new(50, 50), ..Default::default() },
-                Paddle { position: Vector::new(1500, 50), ..Default::default() }
-            ]
+            player_1: Paddle { position: Vector::new(50, 50), ..Default::default() },
+            player_2: Paddle { position: Vector::new(1500, 50), ..Default::default() },
+            input_handler: InputHandler::new()
         })
     }
 
@@ -62,6 +67,7 @@ impl State for Screen {
             self.velocity.x = 0.0;
             self.velocity.y = 0.0;
         }
+        self.input_handler.handle_input(window.keyboard(), &mut self.player_1, &mut self.player_2);
         self.position.x += self.velocity.x;
         self.position.y += self.velocity.y;
         Ok(())
@@ -76,17 +82,19 @@ impl State for Screen {
             window.draw_ex(
                 &image.area().with_center(position),
                 Background::Img(&image),
-                Transform::scale((0.1, 0.1)),
+                Transform::scale((0.05, 0.05)),
                 0
             );
             Ok(())
         });
-        for paddle in self.paddles.iter() {
-            window.draw(
-                &Rectangle::new(paddle.position, paddle.width),
-                Background::Col(paddle.background)
-            );
-        }
+        window.draw(
+            &Rectangle::new(self.player_1.position, self.player_1.width),
+            Background::Col(self.player_1.background)
+        );
+        window.draw(
+            &Rectangle::new(self.player_2.position, self.player_2.width),
+            Background::Col(self.player_2.background)
+        );
         Ok(())
     }
 }

@@ -17,8 +17,8 @@ impl Default for Paddle {
     fn default() -> Paddle {
         Paddle {
             position: Vector::new(50, 50),
-            width: Vector::new(50, 200),
-            background: Color::BLUE
+            width: Vector::new(40, 200),
+            background: Color::WHITE
         }
     }
 
