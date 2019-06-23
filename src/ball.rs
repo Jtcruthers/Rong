@@ -47,12 +47,12 @@ impl Ball {
 
     pub fn update(&mut self, player_1: &Paddle, player_2: &Paddle) {
         if self.position.y <= 0.0 || self.position.y >= 1080.0 {
-            self.velocity.y *= -1.0;
+            self.reverse_y();
         }
-        if self.position.y >= player_1.position.y && self.position.y <= (player_1.position.y + player_1.width.y) && self.position.x <= 90.0 {
+        if self.position.y >= player_1.position.y - 150.0 && self.position.y <= (player_1.position.y + player_1.width.y + 150.0) && self.position.x <= 90.0 {
             self.reverse_x();
         }
-        if self.position.y >= player_2.position.y && self.position.y <= (player_2.position.y + player_2.width.y) && self.position.x >= 1820.0 {
+        if self.position.y >= player_2.position.y - 150.0 && self.position.y <= (player_2.position.y + player_2.width.y + 150.0) && self.position.x >= 1820.0 {
             self.reverse_x();
         }
 

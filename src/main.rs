@@ -5,9 +5,10 @@ mod input_handler;
 mod paddle;
 
 use quicksilver::{
-    Result,
+    Future, Result,
+    combinators::result,
     geom::{Rectangle, Shape, Transform, Vector},
-    graphics::{Background, Color, Image},
+    graphics::{Background, Color, Font, FontStyle, Image},
     lifecycle::{Asset, Settings, State, Window, run},
 };
 
@@ -22,7 +23,8 @@ struct Screen {
     input_handler: InputHandler,
     player_1: Paddle,
     player_2: Paddle,
-    score: (u64, u64)
+    score: (u64, u64),
+    score_text: Asset<Image>
 }
 
 impl State for Screen {
@@ -41,7 +43,12 @@ impl State for Screen {
                 background: Color::from_rgba(234, 80, 183, 100.0),
                 ..Default::default()
             },
-            score: (0, 0)
+            score: (0, 0),
+            score_text: Asset::new(Font::load("arcade.ttf")
+                .and_then(|font| {
+                    let style = FontStyle::new(64.0, Color::BLACK);
+                    result(font.render("SAMPLE", &style))
+                }))
         })
     }
 
@@ -54,7 +61,6 @@ impl State for Screen {
             if player_who_scored == 2 { self.score.1 += 1; }
             self.ball.reset();
         }
-        println!("Score {} to {}", self.score.0, self.score.1);
         Ok(())
     }
 
@@ -79,6 +85,10 @@ impl State for Screen {
             );
             Ok(())
         }).expect("Could not load ball background.");
+        self.score_text.execute(|image| {
+            window.draw(&image.area().with_center((400, 100)), Background::Img(&image));
+            Ok(())
+        });
         window.draw_ex(
             &Rectangle::new(self.player_1.position, self.player_1.width),
             Background::Col(self.player_1.background),

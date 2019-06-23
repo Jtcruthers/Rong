@@ -58,7 +58,7 @@ impl Command for UpCommand {
 
 impl Command for DownCommand {
     fn execute(&self, entity: &mut Paddle) {
-        if entity.position.y < 1000.0 {
+        if entity.position.y < 880.0 {
             entity.position.y += 10.0;
         }
     }
