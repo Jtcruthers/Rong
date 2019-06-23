@@ -18,7 +18,7 @@ pub struct Ball {
 impl Ball {
     pub fn new() -> Ball {
         Ball {
-            position: Vector::new(50, 50),
+            position: Vector::new(960, 540),
             velocity: Vector::new(-10, -10),
             background: Asset::new(Image::load("image.png")),
         }

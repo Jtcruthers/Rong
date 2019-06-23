@@ -7,8 +7,8 @@ mod paddle;
 use quicksilver::{
     Result,
     geom::{Rectangle, Shape, Transform, Vector},
-    graphics::{Background, Color},
-    lifecycle::{Settings, State, Window, run},
+    graphics::{Background, Color, Image},
+    lifecycle::{Asset, Settings, State, Window, run},
 };
 
 
@@ -17,6 +17,7 @@ use paddle::Paddle;
 use input_handler::InputHandler;
 
 struct Screen {
+    background: Asset<Image>,
     ball: Ball,
     player_1: Paddle,
     player_2: Paddle,
@@ -26,9 +27,18 @@ struct Screen {
 impl State for Screen {
     fn new() -> Result<Screen> {
         Ok(Screen {
+            background: Asset::new(Image::load("background.png")),
             ball: Ball::new(),
-            player_1: Paddle { position: Vector::new(50, 50), ..Default::default() },
-            player_2: Paddle { position: Vector::new(1820, 50), ..Default::default() },
+            player_1: Paddle {
+                position: Vector::new(50, 50),
+                background: Color::from_rgba(106, 64, 220, 100.0),
+                ..Default::default()
+            },
+            player_2: Paddle {
+                position: Vector::new(1820, 50),
+                background: Color::from_rgba(234, 80, 183, 100.0),
+                ..Default::default()
+            },
             input_handler: InputHandler::new()
         })
     }
@@ -41,24 +51,36 @@ impl State for Screen {
 
     fn draw(&mut self, window: &mut Window) -> Result<()> {
         window.clear(Color::BLACK)?;
-
+        self.background.execute(|image| {
+            window.draw_ex(
+                &image.area().with_center((960, 540)),
+                Background::Img(&image),
+                Transform::scale((1.0, 1.0)),
+                0
+            );
+            Ok(())
+        }).expect("Could not load background.");
         let position = self.ball.get_position().clone(); //Had to clone it because it complained about borrowing. Look into that
         self.ball.get_background().execute(|image| {
             window.draw_ex(
                 &image.area().with_center(position),
                 Background::Img(&image),
                 Transform::scale((0.05, 0.05)),
-                0
+                1
             );
             Ok(())
         }).expect("Could not load ball background.");
-        window.draw(
+        window.draw_ex(
             &Rectangle::new(self.player_1.position, self.player_1.width),
-            Background::Col(self.player_1.background)
+            Background::Col(self.player_1.background),
+            Transform::scale((1.0, 1.0)),
+            1
         );
-        window.draw(
+        window.draw_ex(
             &Rectangle::new(self.player_2.position, self.player_2.width),
-            Background::Col(self.player_2.background)
+            Background::Col(self.player_2.background),
+            Transform::scale((1.0, 1.0)),
+            1
         );
         Ok(())
     }
