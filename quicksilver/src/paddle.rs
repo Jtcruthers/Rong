@@ -1,10 +1,8 @@
 extern crate quicksilver;
 
 use quicksilver::{
-    Result,
-    geom::{Rectangle, Vector},
-    graphics::{Color, Image},
-    lifecycle::{Asset, Window},
+    geom::{Vector},
+    graphics::{Color},
 };
 
 pub struct Paddle {

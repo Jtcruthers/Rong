@@ -1,9 +1,7 @@
 extern crate quicksilver;
 
 use quicksilver::{
-    Result,
     input::{Key, Keyboard},
-    lifecycle::{Asset, Settings, State, Window, run},
 };
 
 use crate::paddle::Paddle;
