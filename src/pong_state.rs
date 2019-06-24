@@ -1,11 +1,10 @@
 extern crate quicksilver;
 
 use quicksilver::{
-    Future, Result,
-    combinators::result,
+    Result,
     geom::{Rectangle, Shape, Transform, Vector},
     graphics::{Background, Color, Font, FontStyle, Image},
-    lifecycle::{Asset, Settings, State, Window, run},
+    lifecycle::{Asset, State, Window},
 };
 
 use std::rc::Rc;

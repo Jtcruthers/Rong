@@ -11,10 +11,6 @@ mod input_handler;
 mod paddle;
 mod pong_state;
 
-
-use std::rc::Rc;
-use std::cell::RefCell;
-
 use constants::*;
 use pong_state::PongState;
 
