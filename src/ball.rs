@@ -1,10 +1,13 @@
 extern crate quicksilver;
+extern crate rand;
 
 use quicksilver::{
     geom::Vector,
     graphics::Image,
     lifecycle::Asset,
 };
+
+use rand::Rng;
 
 use crate::paddle::Paddle;
 
@@ -19,7 +22,7 @@ impl Ball {
     pub fn new() -> Ball {
         Ball {
             position: Vector::new(960, 540),
-            velocity: Vector::new(-10, -8),
+            velocity: Vector::new(-10, 0),
             background: Asset::new(Image::load("image.png")),
         }
     }
@@ -37,29 +40,40 @@ impl Ball {
         self.velocity = Vector::new(-10, -8);
     }
 
-    fn reverse_x(&mut self) {
+    fn set_random_y_velocity(&mut self) {
+        let mut rng = rand::thread_rng();
+        self.velocity.y = rng.gen_range(-10.0, 10.0);
+    }
+
+    fn reverse_x_velocity(&mut self) {
         self.velocity.x *= -1.0;
     }
 
-    fn reverse_y(&mut self) {
+    fn reverse_y_velocity(&mut self) {
         self.velocity.y *= -1.0;
     }
 
     pub fn update(&mut self, player_1: &Paddle, player_2: &Paddle) {
         if self.position.y <= 0.0 || self.position.y >= 1080.0 {
-            self.reverse_y();
+            self.reverse_y_velocity();
         }
-        if self.position.y >= player_1.position.y - 75.0 && self.position.y <= (player_1.position.y + player_1.width.y + 75.0) && self.position.x <= 90.0 {
-            self.reverse_x();
+        if self.position.y >= player_1.position.y && self.position.y <= player_1.position.y + player_1.width.y && self.position.x <= 90.0 {
+            if self.velocity.x < 0.0 {
+                self.reverse_x_velocity();
+                self.set_random_y_velocity();
+            }
         }
-        if self.position.y >= player_2.position.y - 75.0 && self.position.y <= (player_2.position.y + player_2.width.y + 75.0) && self.position.x >= 1820.0 {
-            self.reverse_x();
+        if self.position.y >= player_2.position.y && self.position.y <= player_2.position.y + player_2.width.y && self.position.x >= 1820.0 {
+            if self.velocity.x > 0.0 {
+                self.reverse_x_velocity();
+                self.set_random_y_velocity();
+            } 
         }
 
         self.position += self.velocity
     }
 
-    pub fn did_score(&mut self, player_1: &Paddle, player_2: &Paddle) -> Option<u8> {
+    pub fn did_score(&mut self) -> Option<u8> {
         if self.position.x <= 0.0 {
             return Some(1);
         }

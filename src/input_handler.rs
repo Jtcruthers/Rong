@@ -6,10 +6,6 @@ use quicksilver::{
 
 use crate::paddle::Paddle;
 
-trait Command {
-    fn execute (&self, entity: &mut Paddle);
-}
-
 pub struct InputHandler {
     up_command: UpCommand,
     down_command: DownCommand,
@@ -48,6 +44,10 @@ struct UpCommand;
 struct DownCommand;
 struct StopCommand;
 
+trait Command {
+    fn execute (&self, entity: &mut Paddle);
+}
+
 impl Command for UpCommand {
     fn execute (&self, entity: &mut Paddle) {
         if entity.position.y > 0.0 {
@@ -66,6 +66,6 @@ impl Command for DownCommand {
 
 impl Command for StopCommand {
     fn execute(&self, entity: &mut Paddle) {
-        entity.position.y = 500.0;
+        entity.position.y   = 500.0;
     }
 }
