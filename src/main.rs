@@ -1,6 +1,7 @@
 extern crate quicksilver;
 
 mod ball;
+mod constants;
 mod input_handler;
 mod paddle;
 
@@ -16,6 +17,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 use ball::Ball;
+use constants::*;
 use paddle::Paddle;
 use input_handler::InputHandler;
 
@@ -42,7 +44,8 @@ struct Screen {
     background: Asset<Image>,
     ball: Ball,
     font: Rc<RefCell<Asset<Font>>>,
-    font_style: FontStyle,
+    p1_font_style: FontStyle,
+    p2_font_style: FontStyle,
     input_handler: InputHandler,
     player_1: Paddle,
     player_2: Paddle,
@@ -55,21 +58,17 @@ impl State for Screen {
             background: Asset::new(Image::load("background.png")),
             ball: Ball::new(),
             font: Rc::new(RefCell::new(Asset::new(Font::load("arcade.ttf")))),
-            font_style: FontStyle::new(64.0, Color {
-                r: 0.0f32,
-                g: 0.5f32,
-                b: 0.4f32,
-                a: 1.0f32,
-            }),
+            p1_font_style: FontStyle::new(64.0, Color::from_rgba(P1_R, P1_G, P1_B, RBG_ALPHA)),
+            p2_font_style: FontStyle::new(64.0, Color::from_rgba(P2_R, P2_G, P2_B, RBG_ALPHA)),
             input_handler: InputHandler::new(),
             player_1: Paddle {
                 position: Vector::new(50, 50),
-                background: Color::from_rgba(106, 64, 220, 100.0),
+                background: Color::from_rgba(P1_R, P1_G, P1_B, RBG_ALPHA),
                 ..Default::default()
             },
             player_2: Paddle {
                 position: Vector::new(1820, 50),
-                background: Color::from_rgba(234, 80, 183, 100.0),
+                background: Color::from_rgba(P2_R, P2_G, P2_B, RBG_ALPHA),
                 ..Default::default()
             },
             score: Scoring::new()
@@ -112,12 +111,12 @@ impl State for Screen {
         }).expect("Could not load ball background.");
         let cloned_font = self.font.clone();
         cloned_font.borrow_mut().execute(|font| {
-            let score1_texture = font.render(&format!("{:02}", self.score.score1), &self.font_style).unwrap();
+            let score1_texture = font.render(&format!("{:02}", self.score.score1), &self.p1_font_style).unwrap();
             self.score.score1_texture = Some(score1_texture);
             Ok(())
         }).expect("Could not render player 1 score");
         cloned_font.borrow_mut().execute(|font| {
-            let score2_texture = font.render(&format!("{:02}", self.score.score2), &self.font_style).unwrap();
+            let score2_texture = font.render(&format!("{:02}", self.score.score2), &self.p2_font_style).unwrap();
             self.score.score2_texture = Some(score2_texture);
             Ok(())
         }).expect("Could not render player 2 score");
@@ -154,7 +153,7 @@ impl State for Screen {
 }
 
 fn main() {
-    run::<Screen>("Rectangluar", Vector::new(1920, 1080), Settings {
+    run::<Screen>("Rectangluar", Vector::new(SCREEN_WIDTH, SCREEN_HEIGHT), Settings {
         icon_path: Some("image.png"),
         vsync: false,
         ..Settings::default()
