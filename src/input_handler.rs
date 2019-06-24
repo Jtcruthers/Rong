@@ -51,7 +51,7 @@ trait Command {
 impl Command for UpCommand {
     fn execute (&self, entity: &mut Paddle) {
         if entity.position.y > 0.0 {
-            entity.position.y -= 10.0;
+            entity.position.y -= 15.0;
         }
     }
 } 
@@ -59,7 +59,7 @@ impl Command for UpCommand {
 impl Command for DownCommand {
     fn execute(&self, entity: &mut Paddle) {
         if entity.position.y < 880.0 {
-            entity.position.y += 10.0;
+            entity.position.y += 15.0;
         }
     }
 }

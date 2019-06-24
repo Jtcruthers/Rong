@@ -10,3 +10,5 @@ pub const P2_G: u8 = 80;
 pub const P2_B: u8 = 183;
 
 pub const RBG_ALPHA: f32 = 100.0;
+
+pub const STEP_VELOCITY_INCREASE: f32 = 2.0;
